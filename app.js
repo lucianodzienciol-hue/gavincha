@@ -267,7 +267,8 @@ const DB = {
         gtmId: '',             // ID de Tag Manager (GTM-XXXXXXX)
         siteTitle: '',         // Título personalizado para SEO
         siteDescription: '',   // Descripción personalizada para SEO
-        banners: []            // Banners rotativos del carrousel
+        banners: [],            // Banners rotativos del carrousel
+        repairsEnabled: true   // Mostrar link/ruta de Reparaciones (Full lo publica en false)
     },
     defaultCategories: [
         { id: '1', name: 'Notebooks' },
@@ -507,6 +508,10 @@ const UI = {
         const brand = document.querySelector('.nav-brand');
         if (brand) {
             brand.innerHTML = `<i class="ph ph-cpu"></i> ${config.companyName}`;
+        }
+        // Reparaciones: ocultar link público si la edición lo deshabilita (Full)
+        if (config.repairsEnabled === false) {
+            document.querySelectorAll('a[data-route="/reparaciones"]').forEach(a => { a.style.display = 'none'; });
         }
         
         // Actualizar Footer
@@ -3564,6 +3569,12 @@ const Router = {
 
         // Bloqueo de seguridad: Solo permitir acceso a admin desde localhost
         if (path.startsWith('/admin') && !this.isLocal()) {
+            this.navigate('/');
+            return;
+        }
+
+        // Reparaciones deshabilitadas por edición (Full): redirigir al catálogo
+        if (path === '/reparaciones' && DB.getConfig().repairsEnabled === false) {
             this.navigate('/');
             return;
         }
