@@ -28,7 +28,7 @@ const DB = {
     
     async init() {
         // Forzar limpieza de localStorage si cambia versión (para migraciones)
-        const APP_VERSION = 3;
+        const APP_VERSION = 4;
         const storedVersion = parseInt(localStorage.getItem('techstore_version') || '0', 10);
         if (storedVersion < APP_VERSION) {
             Object.values(this.keys).forEach(k => localStorage.removeItem(k));
@@ -52,8 +52,10 @@ const DB = {
         }
 
         // Fallback: load data.json directly (GitHub Pages / static mode)
+        // Relativo al documento: en Project Pages (/repo/) el fetch absoluto
+        // '/data.json' resolvería al root del dominio y daría 404.
         try {
-            const res = await fetch('/data.json?t=' + Date.now());
+            const res = await fetch('data.json?t=' + Date.now());
             if (res.ok) {
                 const data = await res.json();
                 Object.keys(this.keys).forEach(key => {
