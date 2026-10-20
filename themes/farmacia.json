@@ -1,0 +1,38 @@
+{
+  "id": "farmacia",
+  "nombre": "Farmacia / Perfumería",
+  "vars": {
+    "--bg-main": "#f2fafa",
+    "--bg-secondary": "#ffffff",
+    "--bg-card": "rgba(255,255,255,0.97)",
+    "--text-main": "#0f2e2b",
+    "--text-muted": "#5f7a77",
+    "--accent-blue": "#0d9488",
+    "--accent-blue-hover": "#0f766e",
+    "--accent-cyan": "#0891b2",
+    "--accent-cyan-hover": "#0e7490",
+    "--success": "#16a34a",
+    "--warning": "#d97706",
+    "--danger": "#b91c1c",
+    "--glass-border": "rgba(15,46,43,0.10)",
+    "--glass-shadow": "0 6px 24px 0 rgba(15,46,43,0.08)",
+    "--font-main": "'Rubik',system-ui,sans-serif",
+    "--radius": ".7rem",
+    "--header-bg": "#134e4a",
+    "--nav-bg": "#134e4a",
+    "--nav-text": "#f2fafa",
+    "--nav-muted": "#99c5c0",
+    "--grid-cols": "4",
+    "--grid-cols-md": "3",
+    "--grid-cols-sm": "2"
+  },
+  "font": "Rubik",
+  "layout": { "sidebar": "left", "carousel": "on", "footer": "compact", "offers": "on" },
+  "demo": {
+    "banners": [
+      { "image": "https://images.unsplash.com/photo-1587854692152-cbe660dbde88?auto=format&fit=crop&w=1200&q=60", "title": "Cuidado de temporada", "link": "", "description": "Dermocosmética y más" },
+      { "image": "https://images.unsplash.com/photo-1471864190281-a93a3070b6de?auto=format&fit=crop&w=1200&q=60", "title": "Tu farmacia online", "link": "", "description": "Pedí y retirá en el local" }
+    ],
+    "logo": null
+  }
+}

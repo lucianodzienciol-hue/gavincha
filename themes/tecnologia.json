@@ -1,0 +1,32 @@
+{
+  "id": "tecnologia",
+  "nombre": "Tecnología",
+  "vars": {
+    "--bg-main": "#f3f4f6",
+    "--bg-secondary": "#ffffff",
+    "--bg-card": "rgba(255,255,255,0.95)",
+    "--text-main": "#111827",
+    "--text-muted": "#4b5563",
+    "--accent-blue": "#dc2626",
+    "--accent-blue-hover": "#b91c1c",
+    "--accent-cyan": "#ef4444",
+    "--accent-cyan-hover": "#dc2626",
+    "--success": "#10b981",
+    "--warning": "#f59e0b",
+    "--danger": "#dc2626",
+    "--glass-border": "rgba(0,0,0,0.08)",
+    "--glass-shadow": "0 4px 20px 0 rgba(0,0,0,0.05)",
+    "--font-main": "'Inter',system-ui,sans-serif",
+    "--radius": "1rem",
+    "--header-bg": "#000000",
+    "--nav-bg": "#000000",
+    "--nav-text": "#ffffff",
+    "--nav-muted": "#9ca3af",
+    "--grid-cols": "5",
+    "--grid-cols-md": "4",
+    "--grid-cols-sm": "3"
+  },
+  "font": "Inter",
+  "layout": { "sidebar": "left", "carousel": "on", "footer": "full", "offers": "on" },
+  "demo": { "banners": [], "logo": null }
+}

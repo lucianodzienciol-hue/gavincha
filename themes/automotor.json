@@ -1,0 +1,38 @@
+{
+  "id": "automotor",
+  "nombre": "Repuestos Automotor",
+  "vars": {
+    "--bg-main": "#0c0d10",
+    "--bg-secondary": "#15171c",
+    "--bg-card": "rgba(21,23,28,0.95)",
+    "--text-main": "#f4f4f5",
+    "--text-muted": "#a1a1aa",
+    "--accent-blue": "#f59e0b",
+    "--accent-blue-hover": "#d97706",
+    "--accent-cyan": "#ef4444",
+    "--accent-cyan-hover": "#dc2626",
+    "--success": "#22c55e",
+    "--warning": "#f59e0b",
+    "--danger": "#ef4444",
+    "--glass-border": "rgba(244,244,245,0.12)",
+    "--glass-shadow": "0 6px 24px 0 rgba(0,0,0,0.40)",
+    "--font-main": "'Rajdhani',system-ui,sans-serif",
+    "--radius": ".4rem",
+    "--header-bg": "#000000",
+    "--nav-bg": "#000000",
+    "--nav-text": "#f4f4f5",
+    "--nav-muted": "#a1a1aa",
+    "--grid-cols": "4",
+    "--grid-cols-md": "3",
+    "--grid-cols-sm": "2"
+  },
+  "font": "Rajdhani",
+  "layout": { "sidebar": "left", "carousel": "on", "footer": "full", "offers": "on" },
+  "demo": {
+    "banners": [
+      { "image": "https://images.unsplash.com/photo-1492144534655-ae79c964c9d7?auto=format&fit=crop&w=1200&q=60", "title": "Repuestos originales", "link": "", "description": "Todas las marcas" },
+      { "image": "https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&w=1200&q=60", "title": "Performance", "link": "", "description": "Potenciá tu auto" }
+    ],
+    "logo": null
+  }
+}

@@ -1,0 +1,38 @@
+{
+  "id": "calzado",
+  "nombre": "Calzado",
+  "vars": {
+    "--bg-main": "#f4f4f5",
+    "--bg-secondary": "#ffffff",
+    "--bg-card": "rgba(255,255,255,0.97)",
+    "--text-main": "#18181b",
+    "--text-muted": "#71717a",
+    "--accent-blue": "#18181b",
+    "--accent-blue-hover": "#3f3f46",
+    "--accent-cyan": "#65a30d",
+    "--accent-cyan-hover": "#4d7c0f",
+    "--success": "#16a34a",
+    "--warning": "#d97706",
+    "--danger": "#dc2626",
+    "--glass-border": "rgba(24,24,27,0.10)",
+    "--glass-shadow": "0 6px 24px 0 rgba(24,24,27,0.08)",
+    "--font-main": "'Archivo',system-ui,sans-serif",
+    "--radius": ".6rem",
+    "--header-bg": "#09090b",
+    "--nav-bg": "#09090b",
+    "--nav-text": "#fafafa",
+    "--nav-muted": "#a1a1aa",
+    "--grid-cols": "4",
+    "--grid-cols-md": "3",
+    "--grid-cols-sm": "2"
+  },
+  "font": "Archivo",
+  "layout": { "sidebar": "left", "carousel": "on", "footer": "full", "offers": "on" },
+  "demo": {
+    "banners": [
+      { "image": "https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&w=1200&q=60", "title": "Zapatillas destacadas", "link": "", "description": "Lo nuevo en calzado urbano" },
+      { "image": "https://images.unsplash.com/photo-1560769629-975ec94e6a86?auto=format&fit=crop&w=1200&q=60", "title": "Sale calzado", "link": "", "description": "Hasta 25% off" }
+    ],
+    "logo": null
+  }
+}

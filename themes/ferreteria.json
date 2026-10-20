@@ -1,0 +1,38 @@
+{
+  "id": "ferreteria",
+  "nombre": "Ferretería",
+  "vars": {
+    "--bg-main": "#f4f4f5",
+    "--bg-secondary": "#ffffff",
+    "--bg-card": "rgba(255,255,255,0.97)",
+    "--text-main": "#27272a",
+    "--text-muted": "#71717a",
+    "--accent-blue": "#ea580c",
+    "--accent-blue-hover": "#c2410c",
+    "--accent-cyan": "#52525b",
+    "--accent-cyan-hover": "#3f3f46",
+    "--success": "#16a34a",
+    "--warning": "#d97706",
+    "--danger": "#b91c1c",
+    "--glass-border": "rgba(39,39,42,0.12)",
+    "--glass-shadow": "0 6px 24px 0 rgba(39,39,42,0.10)",
+    "--font-main": "'Archivo',system-ui,sans-serif",
+    "--radius": ".3rem",
+    "--header-bg": "#27272a",
+    "--nav-bg": "#27272a",
+    "--nav-text": "#f4f4f5",
+    "--nav-muted": "#d4d4d8",
+    "--grid-cols": "4",
+    "--grid-cols-md": "3",
+    "--grid-cols-sm": "2"
+  },
+  "font": "Archivo",
+  "layout": { "sidebar": "left", "carousel": "off", "footer": "compact", "offers": "on" },
+  "demo": {
+    "banners": [
+      { "image": "https://images.unsplash.com/photo-1530124566582-a618bc2615dc?auto=format&fit=crop&w=1200&q=60", "title": "Herramientas pro", "link": "", "description": "Todo para obra y hogar" },
+      { "image": "https://images.unsplash.com/photo-1504148455328-c376907d081c?auto=format&fit=crop&w=1200&q=60", "title": "Electricidad y más", "link": "", "description": "Asesoramiento incluido" }
+    ],
+    "logo": null
+  }
+}

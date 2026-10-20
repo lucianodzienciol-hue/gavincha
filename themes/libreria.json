@@ -1,0 +1,38 @@
+{
+  "id": "libreria",
+  "nombre": "Librería / Papelería",
+  "vars": {
+    "--bg-main": "#faf7f0",
+    "--bg-secondary": "#ffffff",
+    "--bg-card": "rgba(255,255,255,0.97)",
+    "--text-main": "#1e293b",
+    "--text-muted": "#64748b",
+    "--accent-blue": "#1e3a5f",
+    "--accent-blue-hover": "#152a45",
+    "--accent-cyan": "#b45309",
+    "--accent-cyan-hover": "#92400e",
+    "--success": "#15803d",
+    "--warning": "#d97706",
+    "--danger": "#b91c1c",
+    "--glass-border": "rgba(30,41,59,0.10)",
+    "--glass-shadow": "0 6px 24px 0 rgba(30,41,59,0.08)",
+    "--font-main": "'Lora',Georgia,serif",
+    "--radius": ".3rem",
+    "--header-bg": "#1e293b",
+    "--nav-bg": "#1e293b",
+    "--nav-text": "#faf7f0",
+    "--nav-muted": "#94a3b8",
+    "--grid-cols": "5",
+    "--grid-cols-md": "4",
+    "--grid-cols-sm": "3"
+  },
+  "font": "Lora",
+  "layout": { "sidebar": "left", "carousel": "off", "footer": "full", "offers": "on" },
+  "demo": {
+    "banners": [
+      { "image": "https://images.unsplash.com/photo-1481627834876-b7833e8f5570?auto=format&fit=crop&w=1200&q=60", "title": "Vuelta al cole", "link": "", "description": "Útiles y mochilas 2026" },
+      { "image": "https://images.unsplash.com/photo-1507842217343-583bb7270b66?auto=format&fit=crop&w=1200&q=60", "title": "Libros destacados", "link": "", "description": "Novedades todos los meses" }
+    ],
+    "logo": null
+  }
+}

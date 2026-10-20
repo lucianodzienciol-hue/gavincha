@@ -1,0 +1,38 @@
+{
+  "id": "electrodomesticos",
+  "nombre": "Electrodomésticos",
+  "vars": {
+    "--bg-main": "#f0f4f8",
+    "--bg-secondary": "#ffffff",
+    "--bg-card": "rgba(255,255,255,0.97)",
+    "--text-main": "#0f172a",
+    "--text-muted": "#64748b",
+    "--accent-blue": "#1d4ed8",
+    "--accent-blue-hover": "#1e40af",
+    "--accent-cyan": "#06b6d4",
+    "--accent-cyan-hover": "#0891b2",
+    "--success": "#16a34a",
+    "--warning": "#d97706",
+    "--danger": "#b91c1c",
+    "--glass-border": "rgba(15,23,42,0.10)",
+    "--glass-shadow": "0 6px 24px 0 rgba(15,23,42,0.08)",
+    "--font-main": "'Barlow',system-ui,sans-serif",
+    "--radius": ".5rem",
+    "--header-bg": "#0b1e3a",
+    "--nav-bg": "#0b1e3a",
+    "--nav-text": "#f0f4f8",
+    "--nav-muted": "#93c5fd",
+    "--grid-cols": "4",
+    "--grid-cols-md": "3",
+    "--grid-cols-sm": "2"
+  },
+  "font": "Barlow",
+  "layout": { "sidebar": "left", "carousel": "on", "footer": "full", "offers": "on" },
+  "demo": {
+    "banners": [
+      { "image": "https://images.unsplash.com/photo-1556911220-bff31c812dba?auto=format&fit=crop&w=1200&q=60", "title": "Renová tu cocina", "link": "", "description": "12 cuotas sin interés" },
+      { "image": "https://images.unsplash.com/photo-1571175443880-49e1d25b2bc5?auto=format&fit=crop&w=1200&q=60", "title": "Frío y lavado", "link": "", "description": "Heladeras y lavarropas" }
+    ],
+    "logo": null
+  }
+}

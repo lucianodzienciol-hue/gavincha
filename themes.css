@@ -1,0 +1,20 @@
+/* themes.css — reglas de layout por data-* (v1).
+ * Los colores/fuentes/radios los aplica Theme.apply desde web/themes/<id>.json.
+ * Este archivo solo alterna distribución con el DOM existente (sin tocar lógica).
+ */
+
+/* Sidebar: ocultar o pasar arriba */
+body[data-sidebar="hidden"] .catalog-sidebar { display: none; }
+body[data-sidebar="top"] .catalog-layout { flex-direction: column; }
+body[data-sidebar="top"] .catalog-sidebar { width: 100%; position: static; }
+body[data-sidebar="top"] .category-list { flex-direction: row; overflow-x: auto; }
+body[data-sidebar="top"] .category-item { white-space: nowrap; }
+
+/* Carrusel apagado por tema */
+body[data-carousel="off"] #promotional-carousel { display: none !important; }
+
+/* Footer compacto: solo primera sección */
+body[data-footer="compact"] .footer-section:nth-child(n+2) { display: none; }
+
+/* Ofertas apagadas por tema */
+body[data-offers="off"] a[data-route="/ofertas"] { display: none; }

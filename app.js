@@ -28,7 +28,7 @@ const DB = {
     
     async init() {
         // Forzar limpieza de localStorage si cambia versión (para migraciones)
-        const APP_VERSION = 4;
+        const APP_VERSION = 5;
         const storedVersion = parseInt(localStorage.getItem('techstore_version') || '0', 10);
         if (storedVersion < APP_VERSION) {
             Object.values(this.keys).forEach(k => localStorage.removeItem(k));
@@ -268,7 +268,8 @@ const DB = {
         siteTitle: '',         // Título personalizado para SEO
         siteDescription: '',   // Descripción personalizada para SEO
         banners: [],            // Banners rotativos del carrousel
-        repairsEnabled: true   // Mostrar link/ruta de Reparaciones (Full lo publica en false)
+        repairsEnabled: true,  // Mostrar link/ruta de Reparaciones (Full lo publica en false)
+        themeId: 'tecnologia'  // Tema visual por rubro (web/themes/<id>.json)
     },
     defaultCategories: [
         { id: '1', name: 'Notebooks' },
@@ -481,6 +482,17 @@ const formatMoney = (amount) => {
         maximumFractionDigits: c.decimals
     }).format(amount);
 };
+// Precio de oferta válido: sólo si el artículo está en oferta y el precio
+// promocional es mayor a 0 y menor al precio normal.
+const productOfferPrice = (p) => {
+    const price = Number(p && p.price) || 0;
+    const offer = Number(p && p.ofertaPrice) || 0;
+    return (p && p.oferta && offer > 0 && offer < price) ? offer : 0;
+};
+const effectivePrice = (p) => {
+    const offer = productOfferPrice(p);
+    return offer > 0 ? offer : (Number(p && p.price) || 0);
+};
 
 // --- Stats Module (Visits Counter) ---
 const Stats = {
@@ -498,6 +510,50 @@ const Stats = {
     }
 };
 
+// --- Temas visuales por rubro (solo apariencia; la lógica no cambia) ---
+const Theme = {
+    id: 'tecnologia',
+    data: null,
+    async apply() {
+        let id = 'tecnologia';
+        try {
+            const q = new URLSearchParams(window.location.search).get('theme');
+            const cfg = DB.getConfig();
+            id = (q || cfg.themeId || 'tecnologia');
+        } catch { id = 'tecnologia'; }
+        this.id = id;
+        try { document.body.dataset.theme = id; } catch {}
+        try {
+            const res = await fetch('themes/' + encodeURIComponent(id) + '.json');
+            if (!res.ok) return null;
+            const t = await res.json();
+            this.data = t;
+            const root = document.documentElement;
+            const vars = (t && t.vars) || {};
+            for (const k of Object.keys(vars)) {
+                if (/^--[a-z0-9-]+$/i.test(k)) root.style.setProperty(k, String(vars[k]));
+            }
+            if (t.font) {
+                try {
+                    root.style.setProperty('--font-main', `'${String(t.font).replace(/['"]/g, '')}', system-ui, sans-serif`);
+                    const href = 'https://fonts.googleapis.com/css2?family=' + encodeURIComponent(String(t.font)).replace(/%20/g, '+') + ':wght@300;400;500;600;700&display=swap';
+                    let link = document.getElementById('theme-font');
+                    if (!link) { link = document.createElement('link'); link.id = 'theme-font'; link.rel = 'stylesheet'; document.head.appendChild(link); }
+                    if (link.getAttribute('href') !== href) link.setAttribute('href', href);
+                } catch {}
+            }
+            const layout = (t && t.layout) || {};
+            const ds = document.body.dataset;
+            if (layout.sidebar) ds.sidebar = layout.sidebar;
+            if (layout.carousel) ds.carousel = layout.carousel;
+            if (layout.footer) ds.footer = layout.footer;
+            if (layout.offers) ds.offers = layout.offers;
+            try { localStorage.setItem('techstore_theme', JSON.stringify({ id, at: Date.now() })); } catch {}
+            return t;
+        } catch { return null; }
+    },
+};
+
 // --- UI Helpers ---
 const UI = {
     updateConfig() {
@@ -512,6 +568,10 @@ const UI = {
         // Reparaciones: ocultar link público si la edición lo deshabilita (Full)
         if (config.repairsEnabled === false) {
             document.querySelectorAll('a[data-route="/reparaciones"]').forEach(a => { a.style.display = 'none'; });
+        }
+        // Ofertas: ocultar link público si el tema lo deshabilita
+        if (document.body.dataset.offers === 'off') {
+            document.querySelectorAll('a[data-route="/ofertas"]').forEach(a => { a.style.display = 'none'; });
         }
         
         // Actualizar Footer
@@ -701,9 +761,9 @@ const Pages = {
 
             const sort = document.getElementById('sort-select').value;
             if (sort === 'price-asc') {
-                filtered.sort((a, b) => a.price - b.price);
+                filtered.sort((a, b) => effectivePrice(a) - effectivePrice(b));
             } else if (sort === 'price-desc') {
-                filtered.sort((a, b) => b.price - a.price);
+                filtered.sort((a, b) => effectivePrice(b) - effectivePrice(a));
             }
 
             document.getElementById('product-grid').innerHTML = this._generateProductCards(filtered);
@@ -750,7 +810,10 @@ const Pages = {
                 </div>
                 <div class="product-content">
                     <h3 class="product-title">${esc(p.name)}</h3>
-                    <div class="product-price ${p.oferta ? 'oferta' : ''}" style="margin: 0.5rem 0;">${formatMoney(p.price)}</div>
+                    <div style="margin: 0.5rem 0; display: flex; align-items: baseline; flex-wrap: wrap;">
+                        ${productOfferPrice(p) > 0 ? `<span class="product-price-old">${formatMoney(p.price)}</span>` : ''}
+                        <span class="product-price ${productOfferPrice(p) > 0 ? 'oferta' : ''}">${formatMoney(effectivePrice(p))}</span>
+                    </div>
                     ${(DB.getConfig().priceListsEnabled && Number(p.price_mayorista) > 0) ? `<div class="product-wholesale" style="font-size: 0.85rem; color: var(--text-muted);">Mayorista: <strong>${formatMoney(p.price_mayorista)}</strong></div>` : ''}
                     <button class="btn btn-cart w-100" data-cart-id="${esc(p.id)}">
                         <i class="ph ph-shopping-cart-simple"></i> Agregar al carrito
@@ -3387,6 +3450,9 @@ const Carousel = {
         const container = document.getElementById('promotional-carousel');
         if (!container) return;
 
+        // Carrusel deshabilitado por tema: no renderizar
+        if (document.body.dataset.carousel === 'off') { container.classList.add('d-none'); this.stopAutoplay(); return; }
+
         const path = window.location.hash.slice(1) || '/';
         const isPublicRoute = (path === '/' || path === '/ofertas');
         const hasBanners = config.banners && config.banners.length > 0;
@@ -3578,6 +3644,11 @@ const Router = {
             this.navigate('/');
             return;
         }
+        // Ofertas deshabilitadas por tema: redirigir al catálogo
+        if (path === '/ofertas' && document.body.dataset.offers === 'off') {
+            this.navigate('/');
+            return;
+        }
 
         
         // Al cambiar de ruta, siempre volver al inicio del scroll
@@ -3678,9 +3749,10 @@ const Cart = {
     add(id) {
         const p = (DB.get('products') || []).find(x => x.id === id);
         if (!p) return;
+        const price = effectivePrice(p);
         const existing = this.items.find(i => i.id === id);
-        if (existing) existing.qty += 1;
-        else this.items.push({ id: p.id, name: p.name, price: Number(p.price) || 0, category: p.category || '', image: p.image || '', qty: 1 });
+        if (existing) { existing.qty += 1; existing.price = price; }
+        else this.items.push({ id: p.id, name: p.name, price, category: p.category || '', image: p.image || '', qty: 1 });
         this.save();
         Toast.show(p.name + ' agregado al carrito', 'success');
         this.render();
@@ -3933,6 +4005,7 @@ window.Cart = Cart;
 
 document.addEventListener('DOMContentLoaded', async () => {
     await DB.init();
+    await Theme.apply();
     WA.updateFloatingButton();
     UI.updateConfig();
     Stats.increment();

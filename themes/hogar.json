@@ -1,0 +1,38 @@
+{
+  "id": "hogar",
+  "nombre": "Hogar / Deco",
+  "vars": {
+    "--bg-main": "#faf9f7",
+    "--bg-secondary": "#ffffff",
+    "--bg-card": "rgba(255,255,255,0.97)",
+    "--text-main": "#292524",
+    "--text-muted": "#78716c",
+    "--accent-blue": "#9a3412",
+    "--accent-blue-hover": "#7c2d12",
+    "--accent-cyan": "#b45309",
+    "--accent-cyan-hover": "#92400e",
+    "--success": "#15803d",
+    "--warning": "#d97706",
+    "--danger": "#b91c1c",
+    "--glass-border": "rgba(41,37,36,0.10)",
+    "--glass-shadow": "0 6px 24px 0 rgba(41,37,36,0.08)",
+    "--font-main": "'DM Sans',system-ui,sans-serif",
+    "--radius": ".6rem",
+    "--header-bg": "#292524",
+    "--nav-bg": "#292524",
+    "--nav-text": "#faf9f7",
+    "--nav-muted": "#d6d3d1",
+    "--grid-cols": "4",
+    "--grid-cols-md": "3",
+    "--grid-cols-sm": "2"
+  },
+  "font": "DM Sans",
+  "layout": { "sidebar": "left", "carousel": "on", "footer": "full", "offers": "on" },
+  "demo": {
+    "banners": [
+      { "image": "https://images.unsplash.com/photo-1586023492125-27b2c045efd7?auto=format&fit=crop&w=1200&q=60", "title": "Tu casa, tu estilo", "link": "", "description": "Muebles y deco de autor" },
+      { "image": "https://images.unsplash.com/photo-1567016432779-094069958ea5?auto=format&fit=crop&w=1200&q=60", "title": "Dormitorio soñado", "link": "", "description": "Blanquería y más" }
+    ],
+    "logo": null
+  }
+}

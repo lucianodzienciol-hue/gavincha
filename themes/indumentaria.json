@@ -1,0 +1,38 @@
+{
+  "id": "indumentaria",
+  "nombre": "Indumentaria",
+  "vars": {
+    "--bg-main": "#faf6f0",
+    "--bg-secondary": "#ffffff",
+    "--bg-card": "rgba(255,255,255,0.97)",
+    "--text-main": "#1c1917",
+    "--text-muted": "#78716c",
+    "--accent-blue": "#1c1917",
+    "--accent-blue-hover": "#44403c",
+    "--accent-cyan": "#b45309",
+    "--accent-cyan-hover": "#92400e",
+    "--success": "#15803d",
+    "--warning": "#d97706",
+    "--danger": "#b91c1c",
+    "--glass-border": "rgba(28,25,23,0.10)",
+    "--glass-shadow": "0 6px 24px 0 rgba(28,25,23,0.08)",
+    "--font-main": "'Poppins',system-ui,sans-serif",
+    "--radius": ".8rem",
+    "--header-bg": "#1c1917",
+    "--nav-bg": "#1c1917",
+    "--nav-text": "#faf6f0",
+    "--nav-muted": "#a8a29e",
+    "--grid-cols": "4",
+    "--grid-cols-md": "3",
+    "--grid-cols-sm": "2"
+  },
+  "font": "Poppins",
+  "layout": { "sidebar": "top", "carousel": "on", "footer": "compact", "offers": "on" },
+  "demo": {
+    "banners": [
+      { "image": "https://images.unsplash.com/photo-1441986300917-64674bd600d8?auto=format&fit=crop&w=1200&q=60", "title": "Nueva colección", "link": "", "description": "Lo último en indumentaria" },
+      { "image": "https://images.unsplash.com/photo-1445205170230-053b83016050?auto=format&fit=crop&w=1200&q=60", "title": "Ofertas de temporada", "link": "", "description": "Hasta 30% off" }
+    ],
+    "logo": null
+  }
+}

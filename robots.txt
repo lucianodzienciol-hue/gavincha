@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://lucianodzienciol-hue.github.io/gavincha/sitemap.xml

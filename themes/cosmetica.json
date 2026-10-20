@@ -1,0 +1,38 @@
+{
+  "id": "cosmetica",
+  "nombre": "Cosmética / Belleza",
+  "vars": {
+    "--bg-main": "#fdf2f4",
+    "--bg-secondary": "#ffffff",
+    "--bg-card": "rgba(255,255,255,0.97)",
+    "--text-main": "#3f1d2b",
+    "--text-muted": "#9d7285",
+    "--accent-blue": "#be185d",
+    "--accent-blue-hover": "#9d174d",
+    "--accent-cyan": "#f472b6",
+    "--accent-cyan-hover": "#ec4899",
+    "--success": "#15803d",
+    "--warning": "#d97706",
+    "--danger": "#b91c1c",
+    "--glass-border": "rgba(63,29,43,0.10)",
+    "--glass-shadow": "0 6px 24px 0 rgba(63,29,43,0.08)",
+    "--font-main": "'Jost',system-ui,sans-serif",
+    "--radius": "1.2rem",
+    "--header-bg": "#831843",
+    "--nav-bg": "#831843",
+    "--nav-text": "#fdf2f4",
+    "--nav-muted": "#f9a8d4",
+    "--grid-cols": "4",
+    "--grid-cols-md": "3",
+    "--grid-cols-sm": "2"
+  },
+  "font": "Jost",
+  "layout": { "sidebar": "top", "carousel": "on", "footer": "compact", "offers": "on" },
+  "demo": {
+    "banners": [
+      { "image": "https://images.unsplash.com/photo-1596462502278-27bfdc403348?auto=format&fit=crop&w=1200&q=60", "title": "Belleza real", "link": "", "description": "Maquillaje y skincare" },
+      { "image": "https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?auto=format&fit=crop&w=1200&q=60", "title": "Rutina completa", "link": "", "description": "Todo para tu piel" }
+    ],
+    "logo": null
+  }
+}
