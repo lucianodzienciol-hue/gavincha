@@ -16,6 +16,14 @@ const DB = {
     
     _cache: {},
 
+    _persist(key, value) {
+        try {
+            localStorage.setItem(this.keys[key], JSON.stringify(value));
+        } catch (e) {
+            console.warn(`No se pudo guardar "${key}" en localStorage (cuota excedida). Se mantiene en memoria.`);
+        }
+    },
+
     utils: {
         debounce(fn, delay) {
             let timeout;
@@ -28,7 +36,7 @@ const DB = {
     
     async init() {
         // Forzar limpieza de localStorage si cambia versión (para migraciones)
-        const APP_VERSION = 5;
+        const APP_VERSION = 6;
         const storedVersion = parseInt(localStorage.getItem('techstore_version') || '0', 10);
         if (storedVersion < APP_VERSION) {
             Object.values(this.keys).forEach(k => localStorage.removeItem(k));
@@ -41,8 +49,8 @@ const DB = {
                 const data = await res.json();
                 Object.keys(this.keys).forEach(key => {
                     if (data[key]) {
-                        localStorage.setItem(this.keys[key], JSON.stringify(data[key]));
                         this._cache[key] = data[key];
+                        this._persist(key, data[key]);
                     }
                 });
                 return;
@@ -60,8 +68,8 @@ const DB = {
                 const data = await res.json();
                 Object.keys(this.keys).forEach(key => {
                     if (data[key]) {
-                        localStorage.setItem(this.keys[key], JSON.stringify(data[key]));
                         this._cache[key] = data[key];
+                        this._persist(key, data[key]);
                     }
                 });
                 return;
