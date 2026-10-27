@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://unpkg.com https://cdnjs.cloudflare.com https://www.googletagmanager.com https://www.google-analytics.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob: https:; connect-src 'self' https://www.google-analytics.com https://region1.google-analytics.com; frame-src https://www.googletagmanager.com; object-src 'none'; base-uri 'self'">
     <title>SkinCare Zoe | Catálogo online</title>
     <meta name="description" content="Catálogo online de SkinCare Zoe">
     <link rel="canonical" href="https://lucianodzienciol-hue.github.io/gavincha/">
@@ -90,16 +91,6 @@
                 <a href="#/reparaciones" class="nav-link" data-route="/reparaciones">Reparaciones</a>
             </div>
             
-            <div class="nav-links d-none" id="admin-nav">
-                <a href="#/admin" class="nav-link" data-route="/admin">Dashboard</a>
-                <a href="#/admin/productos" class="nav-link" data-route="/admin/productos">Productos</a>
-                <a href="#/admin/servicios" class="nav-link" data-route="/admin/servicios">Servicios</a>
-                <a href="#/admin/clientes" class="nav-link" data-route="/admin/clientes">Clientes</a>
-                <a href="#/admin/reparaciones" class="nav-link" data-route="/admin/reparaciones">Reparaciones</a>
-                <a href="#/admin/local" class="nav-link" data-route="/admin/local" style="color: var(--accent-cyan);"><i class="ph ph-hard-drives"></i> Local Node</a>
-                <a href="#/admin/config" class="nav-link" data-route="/admin/config">Config</a>
-                <a href="#" id="btn-logout"><i class="ph ph-sign-out"></i> Salir</a>
-            </div>
 
             <!-- Cart Button (header) -->
             <button class="nav-cart" id="nav-cart" aria-label="Ver carrito" onclick="Cart.toggle()">
