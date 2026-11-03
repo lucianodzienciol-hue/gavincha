@@ -33,7 +33,7 @@
     <!-- Favicon -->
     <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
     <!-- CSS -->
-    <link rel="stylesheet" href="style.css?v=7">
+    <link rel="stylesheet" href="style.css?v=12">
     <!-- Temas visuales por rubro (solo apariencia) -->
     <link rel="stylesheet" href="themes.css?v=1">
     
@@ -185,9 +185,19 @@
             </div>
 
             <div id="cart-success" style="display:none;" class="cart-success">
+                <h4 class="receipt-title">Detalle del pedido</h4>
                 <i class="ph ph-check-circle"></i>
                 <h4>¡Pedido enviado!</h4>
                 <p id="cart-success-msg"></p>
+                <div id="cart-receipt" class="receipt" style="display:none;"></div>
+                <div id="cart-receipt-actions" class="receipt-actions" style="display:none;">
+                    <button class="btn btn-whatsapp w-100" id="receipt-wa" aria-label="Enviar por WhatsApp" onclick="OrderReceipt.share()">
+                        <i class="ph ph-whatsapp-logo"></i> Enviar por WhatsApp
+                    </button>
+                    <button class="btn btn-secondary w-100" id="receipt-pdf" aria-label="Descargar PDF" onclick="OrderReceipt.download()">
+                        <i class="ph ph-download-simple"></i> Descargar PDF
+                    </button>
+                </div>
                 <button class="btn btn-primary" onclick="Cart.close()">Seguir viendo</button>
             </div>
         </div>
@@ -207,6 +217,8 @@
     </div>
 
     <!-- JavaScript -->
-    <script src="app.js?v=9" defer></script>
+    <script src="vendor/jspdf.umd.min.js?v=1" defer></script>
+    <script type="module" src="receipt.js?v=1"></script>
+    <script src="app.js?v=12" defer></script>
 </body>
 </html>

@@ -390,6 +390,21 @@ const formatMoney = (amount) => {
         maximumFractionDigits: c.decimals
     }).format(amount);
 };
+// Igual que formatMoney, pero apta para las fuentes estándar del PDF: si el
+// símbolo de la moneda no entra en Latin-1 (p. ej. el guaraní) usa el código.
+const pdfMoney = (amount) => {
+    const code = currencyOf(DB.getConfig());
+    const c = CURRENCIES[code];
+    const opts = {
+        style: 'currency',
+        currency: code,
+        minimumFractionDigits: c.decimals,
+        maximumFractionDigits: c.decimals
+    };
+    const narrow = new Intl.NumberFormat(c.locale, { ...opts, currencyDisplay: 'narrowSymbol' }).format(amount);
+    if (/^[\x00-\xFF]*$/.test(narrow)) return narrow;
+    return new Intl.NumberFormat(c.locale, { ...opts, currencyDisplay: 'code' }).format(amount);
+};
 // Precio de oferta válido: sólo si el artículo está en oferta y el precio
 // promocional es mayor a 0 y menor al precio normal.
 const productOfferPrice = (p) => {
@@ -400,6 +415,20 @@ const productOfferPrice = (p) => {
 const effectivePrice = (p) => {
     const offer = productOfferPrice(p);
     return offer > 0 ? offer : (Number(p && p.price) || 0);
+};
+// Disponibilidad en la tienda. Sólo se considera agotado cuando el catálogo
+// trae un stock numérico <= 0; si el campo falta (data.json viejo) se muestra
+// como disponible para no ocultar productos por datos incompletos.
+const productStock = (p) => {
+    if (!p) return null;
+    const raw = p.stock;
+    if (raw === null || raw === undefined || raw === '') return null;
+    const n = Number(raw);
+    return Number.isFinite(n) ? n : null;
+};
+const isOutOfStock = (p) => {
+    const stock = productStock(p);
+    return stock !== null && stock <= 0;
 };
 
 // --- Stats Module (Visits Counter) ---
@@ -708,9 +737,11 @@ const Pages = {
             return `<div class="empty-state" style="grid-column: 1 / -1;"><i class="ph ph-package"></i><p>No se encontraron productos.</p></div>`;
         }
 
-        return products.map(p => `
-            <div class="product-card glass ${p.id === highlightId ? 'highlighted' : ''}" data-id="${esc(p.id)}">
-                ${p.oferta ? '<span class="product-badge">OFERTA</span>' : ''}
+        return products.map(p => {
+            const out = isOutOfStock(p);
+            return `
+            <div class="product-card glass ${p.id === highlightId ? 'highlighted' : ''} ${out ? 'out-of-stock' : ''}" data-id="${esc(p.id)}">
+                ${out ? '<span class="product-badge sold-out">SIN STOCK</span>' : (p.oferta ? '<span class="product-badge">OFERTA</span>' : '')}
                 ${p.nuevo ? '<span class="product-badge new">NUEVO</span>' : ''}
                 <div class="product-img-container">
                     <img src="${esc(p.image || 'https://images.unsplash.com/photo-1588702547919-26089e690ecc?auto=format&fit=crop&w=500&q=60')}" alt="${esc(p.name)}" loading="lazy" onload="this.classList.add('loaded')" onerror="this.src='https://images.unsplash.com/photo-1588702547919-26089e690ecc?auto=format&fit=crop&w=500&q=60';">
@@ -723,15 +754,20 @@ const Pages = {
                         <span class="product-price ${productOfferPrice(p) > 0 ? 'oferta' : ''}">${formatMoney(effectivePrice(p))}</span>
                     </div>
                     ${(DB.getConfig().priceListsEnabled && Number(p.price_mayorista) > 0) ? `<div class="product-wholesale" style="font-size: 0.85rem; color: var(--text-muted);">Mayorista: <strong>${formatMoney(p.price_mayorista)}</strong></div>` : ''}
-                    <button class="btn btn-cart w-100" data-cart-id="${esc(p.id)}">
+                    ${out
+                        ? `<button class="btn btn-cart w-100" disabled aria-disabled="true">
+                        <i class="ph ph-prohibit"></i> Sin stock
+                    </button>`
+                        : `<button class="btn btn-cart w-100" data-cart-id="${esc(p.id)}">
                         <i class="ph ph-shopping-cart-simple"></i> Agregar al carrito
-                    </button>
+                    </button>`}
                     <button class="btn btn-whatsapp w-100" data-product="${esc(p.name)}" style="margin-top: .5rem;">
                         <i class="ph ph-whatsapp-logo"></i> Consultar
                     </button>
                 </div>
             </div>
-        `).join('');
+        `;
+        }).join('');
     },
 
     _attachProductEvents() {
@@ -1401,6 +1437,232 @@ function esc(v) {
     return String(v ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 }
 
+// ===== COMPROBANTE DE PEDIDO =====
+// Muestra el detalle de la compra y lo exporta como PDF. Los cálculos y el
+// formato de fecha viven en web/receipt.js (módulo puro, cubierto por tests).
+const OrderReceipt = {
+    current: null,
+
+    normalize(order) {
+        if (!window.NexusReceipt) return null;
+        return window.NexusReceipt.normalizeOrder(order);
+    },
+
+    show(order) {
+        const wrap = document.getElementById('cart-receipt');
+        const actions = document.getElementById('cart-receipt-actions');
+        const panel = document.getElementById('cart-success');
+        const model = this.normalize(order);
+        this.current = model && model.items.length ? model : null;
+        if (!wrap) return;
+        if (!this.current) {
+            wrap.style.display = 'none';
+            wrap.innerHTML = '';
+            if (actions) actions.style.display = 'none';
+            if (panel) panel.classList.remove('has-receipt');
+            return;
+        }
+        wrap.innerHTML = this.html(this.current);
+        wrap.style.display = '';
+        if (actions) actions.style.display = '';
+        if (panel) panel.classList.add('has-receipt');
+    },
+
+    html(m) {
+        const items = (m.items || []).map(it => `
+            <tr>
+                <td class="ri-name">${esc(it.name)}</td>
+                <td class="ri-qty">${it.quantity}</td>
+                <td class="ri-unit">${formatMoney(it.price)}</td>
+                <td class="ri-sub">${formatMoney(it.subtotal)}</td>
+            </tr>`).join('');
+        return `
+            <div class="receipt-head">
+                <div><strong>Pedido</strong> ${esc(m.id || '')}</div>
+                <div>${esc(m.dateText || '')}</div>
+            </div>
+            <div class="receipt-client">
+                <div>Cliente: ${esc(m.clientName || '')}${m.clientPhone ? ' · ' + esc(m.clientPhone) : ''}</div>
+            </div>
+            <div class="receipt-table-wrap">
+                <table class="receipt-table">
+                    <thead>
+                        <tr>
+                            <th>Producto</th>
+                            <th class="ri-qty-h">Cant.</th>
+                            <th class="ri-unit-h">Unitario</th>
+                            <th class="ri-sub-h">Subtotal</th>
+                        </tr>
+                    </thead>
+                    <tbody>${items}</tbody>
+                    <tfoot>
+                        <tr>
+                            <th colspan="3" class="ri-total-label">TOTAL</th>
+                            <th class="ri-total-val">${formatMoney(m.total)}</th>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+            ${m.notes ? `<p class="receipt-notes">${esc(m.notes)}</p>` : ''}
+        `;
+    },
+
+    pdfText(value) {
+        // Las fuentes estándar del PDF usan WinAnsi: si se cuela un carácter
+        // fuera de Latin-1, jsPDF pasa todo el texto a UTF-16 y el visor lo
+        // muestra ilegible. Normalizamos lo tipográfico y el resto va a '?'.
+        return String(value == null ? '' : value)
+            .replace(/[\u2018\u2019]/g, "'")
+            .replace(/[\u201C\u201D]/g, '"')
+            .replace(/[\u2013\u2014]/g, '-')
+            .replace(/\u2026/g, '...')
+            .replace(/[^\x00-\xFF]/g, '?');
+    },
+
+    pdf(m) {
+        const JsPDF = window.jspdf && window.jspdf.jsPDF;
+        if (!JsPDF) throw new Error('jsPDF no disponible');
+        const cfg = DB.getConfig();
+        const doc = new JsPDF({ unit: 'mm', format: 'a4' });
+        const left = 15, right = 195;
+        const colQty = 128, colUnit = 152;
+        let y = 18;
+
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(16);
+        doc.text(this.pdfText(cfg.companyName || 'Comprobante de pedido'), left, y);
+
+        doc.setFont('helvetica', 'normal');
+        doc.setFontSize(9);
+        doc.setTextColor(90);
+        const contact = [cfg.address, cfg.phone, cfg.email].filter(Boolean).join('   ·   ');
+        if (contact) doc.text(doc.splitTextToSize(this.pdfText(contact), 115), left, y + 6);
+        doc.setTextColor(0);
+
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(10);
+        doc.text(this.pdfText(m.id ? 'PEDIDO ' + m.id : 'PEDIDO'), right, y, { align: 'right' });
+        doc.setFont('helvetica', 'normal');
+        doc.setFontSize(9);
+        doc.text(this.pdfText(m.dateText || ''), right, y + 5, { align: 'right' });
+        y += 16;
+
+        doc.setDrawColor(200);
+        doc.line(left, y, right, y);
+        y += 6;
+
+        const client = [m.clientName ? 'Cliente: ' + m.clientName : '', m.clientPhone ? 'Tel: ' + m.clientPhone : ''].filter(Boolean).join('     ');
+        if (client) { doc.text(this.pdfText(client), left, y); y += 8; }
+
+        const tableHead = () => {
+            doc.setFont('helvetica', 'bold');
+            doc.setFontSize(8.5);
+            doc.text('Producto', left, y);
+            doc.text('Cant.', colQty, y, { align: 'right' });
+            doc.text('Unitario', colUnit, y, { align: 'right' });
+            doc.text('Subtotal', right, y, { align: 'right' });
+            y += 2;
+            doc.line(left, y, right, y);
+            y += 5;
+            doc.setFont('helvetica', 'normal');
+        };
+        tableHead();
+
+        for (const it of (m.items || [])) {
+            const nameLines = doc.splitTextToSize(this.pdfText(it.name), 105);
+            const rowH = Math.max(6, nameLines.length * 4.6 + 2);
+            if (y + rowH > 272) {
+                doc.addPage();
+                y = 20;
+                tableHead();
+            }
+            doc.text(nameLines, left, y);
+            doc.text(String(it.quantity), colQty, y, { align: 'right' });
+            doc.text(this.pdfText(pdfMoney(it.price)), colUnit, y, { align: 'right' });
+            doc.text(this.pdfText(pdfMoney(it.subtotal)), right, y, { align: 'right' });
+            y += rowH;
+        }
+
+        y += 2;
+        doc.setDrawColor(150);
+        doc.line(left, y, right, y);
+        y += 7;
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(11);
+        doc.text('TOTAL', left, y);
+        doc.text(this.pdfText(pdfMoney(m.total)), right, y, { align: 'right' });
+
+        if (m.notes) {
+            y += 10;
+            doc.setFont('helvetica', 'normal');
+            doc.setFontSize(8);
+            doc.setTextColor(110);
+            doc.text(doc.splitTextToSize(this.pdfText(m.notes), right - left), left, y);
+            doc.setTextColor(0);
+        }
+
+        doc.setFont('helvetica', 'normal');
+        doc.setFontSize(8);
+        doc.setTextColor(110);
+        doc.text(this.pdfText('Pedido pendiente de confirmación'), left, 287);
+        doc.setTextColor(0);
+        return doc;
+    },
+
+    fileName(m) {
+        return window.NexusReceipt.receiptFileName(m);
+    },
+
+    download() {
+        if (!this.current) return;
+        try {
+            this.pdf(this.current).save(this.fileName(this.current));
+            Toast.show('PDF descargado', 'success');
+        } catch (e) {
+            Toast.show('No se pudo generar el PDF', 'error');
+        }
+    },
+
+    file(m) {
+        const blob = this.pdf(m).output('blob');
+        return new File([blob], this.fileName(m), { type: 'application/pdf' });
+    },
+
+    async share() {
+        const m = this.current;
+        if (!m) return;
+        const cfg = DB.getConfig();
+        const text = window.NexusReceipt.orderWhatsappText(m, {
+            companyName: cfg.companyName || 'la tienda',
+            formatMoney,
+        });
+
+        let file = null;
+        try { file = this.file(m); } catch {}
+        if (file && navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
+            try {
+                await navigator.share({ files: [file], title: m.id || 'Pedido web', text });
+                return;
+            } catch (e) {
+                if (e && e.name === 'AbortError') return;
+            }
+        }
+
+        // Sin Web Share con archivos: se descarga el PDF y se abre WhatsApp
+        // con el resumen, para adjuntarlo a mano.
+        try {
+            this.pdf(m).save(this.fileName(m));
+            Toast.show('PDF descargado: adjuntalo en WhatsApp', 'warning');
+        } catch {
+            Toast.show('No se pudo generar el PDF', 'error');
+            return;
+        }
+        const phone = cfg.whatsapp ? WA.formatNumber(cfg.whatsapp) : '';
+        const msg = encodeURIComponent(text + '\n\nAdjunto el comprobante en PDF.');
+        window.open('https://wa.me/' + phone + '?text=' + msg, '_blank');
+    },
+};
+
 const Cart = {
     KEY: 'nexus_cart_v1',
     PENDING_KEY: 'nexus_pending_orders',
@@ -1429,8 +1691,14 @@ const Cart = {
     add(id) {
         const p = (DB.get('products') || []).find(x => x.id === id);
         if (!p) return;
+        const stock = productStock(p);
+        if (isOutOfStock(p)) { Toast.show(p.name + ': sin stock', 'error'); return; }
         const price = effectivePrice(p);
         const existing = this.items.find(i => i.id === id);
+        if (stock !== null && existing && existing.qty >= stock) {
+            Toast.show('Sin stock: ya tenés el máximo disponible (' + stock + ')', 'error');
+            return;
+        }
         if (existing) { existing.qty += 1; existing.price = price; }
         else this.items.push({ id: p.id, name: p.name, price, category: p.category || '', image: p.image || '', qty: 1 });
         this.save();
@@ -1439,9 +1707,16 @@ const Cart = {
     },
 
     changeQty(idx, delta) {
-        if (!this.items[idx]) return;
-        this.items[idx].qty += delta;
-        if (this.items[idx].qty <= 0) this.items.splice(idx, 1);
+        const item = this.items[idx];
+        if (!item) return;
+        const product = (DB.get('products') || []).find(x => x.id === item.id);
+        const stock = productStock(product);
+        if (delta > 0 && stock !== null) {
+            if (stock <= 0) { Toast.show('Sin stock disponible', 'error'); return; }
+            if (item.qty >= stock) { Toast.show('No hay más unidades disponibles', 'error'); return; }
+        }
+        item.qty += delta;
+        if (item.qty <= 0) this.items.splice(idx, 1);
         this.save();
         this.render();
     },
@@ -1477,11 +1752,14 @@ const Cart = {
         if (this.items.length === 0) {
             listEl.innerHTML = '<div class="cart-empty"><i class="ph ph-shopping-cart-simple"></i><p>El carrito est\u00e1 vac\u00edo</p><p style="font-size:.85rem;">Agreg\u00e1 productos desde el cat\u00e1logo</p></div>';
         } else {
-            listEl.innerHTML = this.items.map((i, idx) => `
-                <div class="cart-item">
+            listEl.innerHTML = this.items.map((i, idx) => {
+                const product = (DB.get('products') || []).find(x => x.id === i.id);
+                const out = product ? isOutOfStock(product) : false;
+                return `
+                <div class="cart-item ${out ? 'out-of-stock' : ''}">
                     <img class="cart-item-img" src="${esc(i.image || '')}" alt="" onerror="this.style.visibility='hidden'">
                     <div class="cart-item-info">
-                        <div class="cart-item-name">${esc(i.name)}</div>
+                        <div class="cart-item-name">${esc(i.name)}${out ? ' <span class="cart-stock-flag">Sin stock</span>' : ''}</div>
                         <div class="cart-item-cat">${esc(i.category || '')}</div>
                         <div class="cart-item-price">${formatMoney(i.price)}</div>
                         <div class="cart-item-actions">
@@ -1492,7 +1770,8 @@ const Cart = {
                             <button class="cart-item-remove" onclick="Cart.remove(${idx})" title="Eliminar">&times;</button>
                         </div>
                     </div>
-                </div>`).join('');
+                </div>`;
+            }).join('');
         }
         const t = document.getElementById('cart-total');
         if (t) t.textContent = formatMoney(this.total());
@@ -1526,18 +1805,6 @@ const Cart = {
         if (btn) btn.textContent = 'Enviar pedido';
         const hint = document.getElementById('co-remote-hint');
         if (hint) hint.style.display = remote ? '' : 'none';
-    },
-
-    buildWaMessage(payload, storeName, orderId) {
-        const lines = [`Hola ${storeName}! Quiero hacer un pedido${orderId ? ' (' + orderId + ')' : ''}:`, ''];
-        for (const it of payload.items) {
-            lines.push(`• ${it.quantity} x ${it.name} - ${formatMoney(it.price * it.quantity)}`);
-        }
-        lines.push('', `Total: ${formatMoney(payload.total)}`, `Nombre: ${payload.clientName}`, `Tel: ${payload.clientPhone}`);
-        const deliveryTxt = payload.deliveryType === 'envio' ? 'Envío a domicilio' : 'Retiro en local';
-        lines.push(`Entrega: ${deliveryTxt}`);
-        if (payload.notes) lines.push(`Notas: ${payload.notes}`);
-        return lines.join('\n');
     },
 
     showMain() {
@@ -1577,11 +1844,12 @@ const Cart = {
         ['co-name', 'co-phone', 'co-address', 'co-notes'].forEach(id => { const el = document.getElementById(id); if (el) el.value = ''; });
     },
 
-    showCheckoutSuccess(msg) {
+    showCheckoutSuccess(msg, order) {
         this.clearCheckoutForm();
         document.getElementById('cart-checkout').style.display = 'none';
         document.getElementById('cart-success-msg').textContent = msg;
         document.getElementById('cart-success').style.display = '';
+        OrderReceipt.show(order);
     },
 
     async submit() {
@@ -1600,21 +1868,17 @@ const Cart = {
             this.setCheckoutBusy(false);
             return;
         }
-        if (sent) {
-            const msg = encodeURIComponent(this.buildWaMessage(payload, config.companyName || 'la tienda', sent.id));
-            window.open(`https://wa.me/${WA.formatNumber(config.whatsapp)}?text=${msg}`, '_blank');
-            this.items = [];
-            this.save();
-            this.showCheckoutSuccess('Pedido ' + sent.id + ' registrado. Se abrió WhatsApp: enviá el mensaje para confirmarlo.');
-            Toast.show('¡Pedido enviado!', 'success');
-        } else {
-            const msg = encodeURIComponent(this.buildWaMessage(payload, config.companyName || 'la tienda', ''));
-            window.open(`https://wa.me/${WA.formatNumber(config.whatsapp)}?text=${msg}`, '_blank');
-            this.items = [];
-            this.save();
-            this.showCheckoutSuccess('Se abrió WhatsApp con tu pedido. Enviá el mensaje para confirmarlo (online no disponible).');
-            Toast.show('Pedido enviado por WhatsApp.', 'success');
-        }
+        const order = sent || {
+            items: payload.items,
+            total: payload.total,
+            clientName: payload.clientName,
+            clientPhone: payload.clientPhone,
+            notes: payload.notes,
+        };
+        this.items = [];
+        this.save();
+        this.showCheckoutSuccess('Pedido registrado. Enviá el comprobante por WhatsApp para confirmarlo.', order);
+        Toast.show('¡Pedido listo para enviar!', 'success');
         this.setCheckoutBusy(false);
     },
 
@@ -1644,8 +1908,8 @@ const Cart = {
             if (order.duplicate) Toast.show('Pedido ya registrado (' + order.id + ')', 'success');
             this.items = [];
             this.save();
-            this.showCheckoutSuccess('Pedido ' + order.id + ' recibido. Te contactaremos a la brevedad.');
-            Toast.show('¡Pedido enviado!', 'success');
+            this.showCheckoutSuccess('Pedido ' + order.id + ' recibido. Enviá el comprobante por WhatsApp para confirmarlo.', order);
+            Toast.show('¡Pedido listo para enviar!', 'success');
         } else if (retriable) {
             this.savePending(payload);
             this.items = [];
