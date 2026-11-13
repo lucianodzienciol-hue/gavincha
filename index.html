@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://unpkg.com https://cdnjs.cloudflare.com https://www.googletagmanager.com https://www.google-analytics.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob: https:; connect-src 'self' https://www.google-analytics.com https://region1.google-analytics.com; frame-src https://www.googletagmanager.com; object-src 'none'; base-uri 'self'">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://unpkg.com https://cdnjs.cloudflare.com https://www.googletagmanager.com https://www.google-analytics.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net; font-src 'self' https://fonts.gstatic.com https://cdn.jsdelivr.net data:; img-src 'self' data: blob: https:; connect-src 'self' https://www.google-analytics.com https://region1.google-analytics.com; frame-src https://www.googletagmanager.com; object-src 'none'; base-uri 'self'">
     <title>Skincare Zoe | Catálogo online</title>
     <meta name="description" content="Catálogo online de Skincare Zoe">
     <link rel="canonical" href="https://lucianodzienciol-hue.github.io/gavincha/">
@@ -33,7 +33,7 @@
     <!-- Favicon -->
     <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
     <!-- CSS -->
-    <link rel="stylesheet" href="style.css?v=12">
+    <link rel="stylesheet" href="style.css?v=13">
     <!-- Temas visuales por rubro (solo apariencia) -->
     <link rel="stylesheet" href="themes.css?v=1">
     
@@ -94,7 +94,11 @@
 
             <!-- Cart Button (header) -->
             <button class="nav-cart" id="nav-cart" aria-label="Ver carrito" onclick="Cart.toggle()">
-                <i class="ph ph-shopping-cart-simple"></i>
+                <svg class="cart-icon" viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+                    <circle cx="9" cy="20" r="1.4"></circle>
+                    <circle cx="18" cy="20" r="1.4"></circle>
+                    <path d="M2.5 3h2.2l2.3 11.2a2 2 0 0 0 2 1.6h8.6a2 2 0 0 0 2-1.6L21 7H6"></path>
+                </svg>
                 <span class="cart-badge" id="cart-badge" style="display:none;">0</span>
             </button>
         </nav>
@@ -150,7 +154,7 @@
         <div class="cart-drawer">
             <div class="cart-header">
                 <h3><i class="ph ph-shopping-cart-simple"></i> Tu Carrito</h3>
-                <button class="cart-close" onclick="Cart.close()" aria-label="Cerrar"><i class="ph ph-x"></i></button>
+                <button class="cart-close" type="button" onclick="Cart.close()" aria-label="Cerrar carrito" title="Cerrar carrito"><span aria-hidden="true">&times;</span></button>
             </div>
 
             <div id="cart-main">
@@ -158,6 +162,7 @@
                 <div class="cart-footer">
                     <div class="cart-total-row"><span>Total:</span><strong id="cart-total">$0</strong></div>
                     <button class="btn btn-primary w-100" id="cart-view-checkout" onclick="Cart.showCheckout()">Iniciar Pedido</button>
+                    <button class="btn btn-secondary w-100 cart-continue" type="button" onclick="Cart.close()">Seguir comprando</button>
                 </div>
             </div>
 
@@ -198,7 +203,7 @@
                         <i class="ph ph-download-simple"></i> Descargar PDF
                     </button>
                 </div>
-                <button class="btn btn-primary" onclick="Cart.close()">Seguir viendo</button>
+                <button class="btn btn-primary" onclick="Cart.close()">Seguir comprando</button>
             </div>
         </div>
     </div>
@@ -219,6 +224,6 @@
     <!-- JavaScript -->
     <script src="vendor/jspdf.umd.min.js?v=1" defer></script>
     <script type="module" src="receipt.js?v=1"></script>
-    <script src="app.js?v=12" defer></script>
+    <script src="app.js?v=13" defer></script>
 </body>
 </html>

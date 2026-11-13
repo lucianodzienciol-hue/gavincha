@@ -1673,6 +1673,23 @@ const Cart = {
         if (!Array.isArray(this.items)) this.items = [];
         this.updateBadge();
         this.retryPending();
+        this.bindClose();
+    },
+
+    // Cerrar el carrito: clic en el fondo (overlay) o tecla Escape.
+    bindClose() {
+        const ov = document.getElementById('cart-overlay');
+        if (ov && !ov.dataset.closeBound) {
+            ov.addEventListener('click', (e) => { if (e.target === ov) this.close(); });
+            ov.dataset.closeBound = '1';
+        }
+        if (!this._escBound) {
+            document.addEventListener('keydown', (e) => {
+                if (e.key !== 'Escape' && e.key !== 'Esc') return;
+                if (ov && ov.classList.contains('open')) this.close();
+            });
+            this._escBound = true;
+        }
     },
 
     save() {
@@ -1736,6 +1753,8 @@ const Cart = {
         if (!ov) return;
         const open = ov.classList.toggle('open');
         document.body.style.overflow = open ? 'hidden' : '';
+        const btn = document.getElementById('nav-cart');
+        if (btn) btn.setAttribute('aria-expanded', open ? 'true' : 'false');
         if (open) { this.showMain(); this.render(); }
     },
 
@@ -1743,6 +1762,8 @@ const Cart = {
         const ov = document.getElementById('cart-overlay');
         if (ov) ov.classList.remove('open');
         document.body.style.overflow = '';
+        const btn = document.getElementById('nav-cart');
+        if (btn) btn.setAttribute('aria-expanded', 'false');
         this.showMain();
     },
 
